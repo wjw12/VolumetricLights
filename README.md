@@ -16,7 +16,7 @@ I added a few lines of code, namely creating new script VolumetricLightProjector
 
 The following gif is rendered with the camera lying inside the light volume and the spotlight is rotating along its local axis.
 
-<img src="src="/1.gif?raw=true">
+<img src="/1.gif?raw=true">
 
 To use this multichromatic light volume, attach VolumetricLightProjector.cs instead of VolumetricLight.cs to the lights that you want to create this effect on. And then add a colored image as light projection texture. 
 
