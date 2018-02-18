@@ -12,11 +12,11 @@ Corresponding thread in Unity Forum can be found [here](http://forum.unity3d.com
 
 I added a few lines of code, namely creating new script VolumetricLightProjector.cs and new shader VolumetricProjection.shader so that the light volume can be multichromatic, which resulted in:
 
-[![IMAGE ALT TEXT HERE](http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/v2.jpg)](http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/v2.jpg)
+<img src="http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/v2.png">
 
 The following gif is rendered with the camera lying inside the light volume and the spotlight is rotating along its local axis.
 
-[![IMAGE ALT TEXT HERE](http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/1.gif)](http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/1.gif)
+<img src="http://wjwtest.oss-cn-qingdao.aliyuncs.com/cg_exercise/02/1.gif">
 
 To use this multichromatic light volume, attach VolumetricLightProjector.cs instead of VolumetricLight.cs to the lights that you want to create this effect on. And then add a colored image as light projection texture. 
 
