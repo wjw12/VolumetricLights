@@ -1,4 +1,4 @@
-// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 // Upgrade NOTE: replaced 'unity_World2Shadow' with 'unity_WorldToShadow'
 
@@ -31,13 +31,13 @@
 
 
 
-Shader "Sandbox/VolumetricLight"
+Shader "Sandbox/VolumetricProjection"
 {
 	Properties
 	{
 		[HideInInspector]_MainTex ("Texture", 2D) = "white" {}
 		[HideInInspector]_ZTest ("ZTest", Float) = 0
-		[HideInInspector]_LightColor("_LightColor", Color) = (1,1,1,1)
+		//[HideInInspector]_LightColor("_LightProjectionTexture", 2D) = "white" {}
 	}
 	SubShader
 	{
@@ -55,6 +55,9 @@ Shader "Sandbox/VolumetricLight"
 
 		sampler3D _NoiseTexture;
 		sampler2D _DitherTexture;
+
+		// cookie to be projected
+		sampler2D _LightProjectionTexture;
 		
 		float4 _FrustumCorners[4];
 
@@ -81,6 +84,7 @@ Shader "Sandbox/VolumetricLight"
 		// x:  ground level, y: height scale, z: unused, w: unused
 		float4 _HeightFog;
 		//float4 _LightDir;
+
 
 		float _MaxRayLength;
 
@@ -216,6 +220,12 @@ Shader "Sandbox/VolumetricLight"
             return density;
 		}        
 
+		float4 GetColor(float3 wpos)
+		{
+			float4 posLight = mul(_MyLightMatrix0, float4(wpos, 1));
+			return tex2D(_LightProjectionTexture, posLight.xy / posLight.w + float2(0.5, 0.5));
+		}
+
 		//-----------------------------------------------------------------------------------------
 		// MieScattering
 		//-----------------------------------------------------------------------------------------
@@ -263,17 +273,22 @@ Shader "Sandbox/VolumetricLight"
                 float scattering = _VolumetricLight.x * stepSize * density;
 				extinction += _VolumetricLight.y * stepSize * density;// +scattering;
 
-				float4 light = atten * scattering * exp(-extinction);
+				float4 currentColor = GetColor(currentPosition);
+
+				//float4 light = atten * scattering * exp(-extinction);
+				float lightInten = atten * scattering * exp(-extinction) * currentColor.w;
+
 
 //#if PHASE_FUNCTOIN
 #if !defined (DIRECTIONAL) && !defined (DIRECTIONAL_COOKIE)
 				// phase functino for spot and point lights
                 float3 tolight = normalize(currentPosition - _LightPos.xyz);
                 cosAngle = dot(tolight, -rayDir);
-				light *= MieScattering(cosAngle, _MieG);
+				lightInten *= MieScattering(cosAngle, _MieG);
 #endif          
 //#endif
-				vlight += light;
+				//vlight += light;
+				vlight += currentColor * lightInten;
 
 				currentPosition += step;				
 			}
@@ -284,7 +299,7 @@ Shader "Sandbox/VolumetricLight"
 #endif
 
 			// apply light's color
-			vlight *= _LightColor;
+			//vlight *= _LightColor;
 
 			vlight = max(0, vlight);
 #if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE) // use "proper" out-scattering/absorption for dir light 
